@@ -1,0 +1,24 @@
+{
+  "name": "custom-trello-slack-mcp",
+  "version": "1.0.0",
+  "description": "MCP customizado para integração Trello + Slack",
+  "main": "mcp-custom-server.js",
+  "bin": {
+    "mcp-custom-server": "./mcp-custom-server.js"
+  },
+  "scripts": {
+    "start": "node mcp-custom-server.js",
+    "dev": "node mcp-custom-server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "keywords": [
+    "mcp",
+    "trello",
+    "slack",
+    "integration"
+  ],
+  "author": "Custom MCP Server",
+  "license": "MIT"
+}
