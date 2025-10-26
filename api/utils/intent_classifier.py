@@ -97,17 +97,40 @@ def classify_intent(text):
     
     # Intent: Mover card
     if any(word in text_lower for word in ['mover', 'mudar', 'transferir']):
-        # Extrair nome do card e lista destino
-        card_match = re.search(r'(?:mover|mudar|transferir) (?:o )?(?:card |tarefa )?["\']?(.+?)["\']? (?:para|pra)', text_lower)
-        list_match = re.search(r'(?:para|pra) (?:a lista )?["\']?(.+?)["\']?$', text_lower)
+        # Estratégia simples: dividir no "para"
+        # Remove o comando inicial
+        text_clean = re.sub(r'(?:mover|mudar|transferir)\s+', '', text_lower, count=1)
+        
+        # Remove "card" ou "o card" do início
+        text_clean = re.sub(r'^(?:o\s+)?(?:card\s+|tarefa\s+)', '', text_clean)
+        
+        # Encontrar "para" ou "pra"
+        if ' para ' in text_clean:
+            parts = text_clean.split(' para ', 1)
+        elif ' pra ' in text_clean:
+            parts = text_clean.split(' pra ', 1)
+        else:
+            parts = [None, None]
+        
+        if len(parts) == 2:
+            card_name = parts[0].strip()
+            target_list = parts[1].strip()
+            
+            # Remover "a lista" do início da lista
+            target_list = re.sub(r'^(?:a\s+)?(?:lista\s+|coluna\s+)', '', target_list)
+            
+            print(f"[INTENT] Mover detectado - Card: '{card_name}', Lista: '{target_list}'")
+        else:
+            card_name = None
+            target_list = None
         
         return {
             'intent': 'trello_move_card',
             'params': {
-                'card_name': card_match.group(1).strip() if card_match else None,
-                'target_list': list_match.group(1).strip() if list_match else None
+                'card_name': card_name,
+                'target_list': target_list
             },
-            'confidence': 0.85 if (card_match and list_match) else 0.5
+            'confidence': 0.85 if (card_name and target_list) else 0.5
         }
     
     # Intent: Listar listas do quadro

@@ -1,4 +1,53 @@
+# Synco
+PMO Inteligente: o *"ChatGPT dos Projetos"* que conecta Slack, Trello e GitHub com automação, insights e gráficos em tempo real.
+___
 <p align="center">
   <img src="./assets/banner.png" alt="MCP Trello + Slack Banner" width="100%">
 </p>
+
+## 💡 Sobre o Synco
+
+**Synco** é um assistente inteligente que revoluciona o gerenciamento de projetos através de **conversação natural** no Slack. Simplesmente mencione o bot e peça o que precisa - ele entende, processa e executa. Sem cliques, sem abas, sem complicação.
+
+**O diferencial?** Análise de dados em tempo real com gráficos gerados por IA, busca inteligente por similaridade e integração nativa com suas ferramentas de trabalho. Tudo isso respondendo em segundos diretamente no seu chat.
+
+---
+
+### 🧪 Teste Agora
+**[Entrar no Slack →](https://join.slack.com/t/pmoviaslack/shared_invite/zt-3gn1uow6u-F~WNLomzS9TjThWF6~wIPw)** Teste a Synco em ação
+
+### 📦 Repositórios
+- **[GitHub](https://github.com/PedroJorgeSA/ai_builder_hackathon_2025_PMOslack)** - Código-fonte do projeto
+- **[Trello Board](https://trello.com/b/ddJDEAXb/kanban-quadro-modelo)** - Quadro Kanban de exemplo
+
+---
+
+## 🚀 O que você pode fazer no Slack
+
+### 📋 Trello Integration
+_Gerencie seu board do Trello sem sair do Slack. Crie, mova e organize cards usando linguagem natural, sem precisar lembrar IDs ou abrir o navegador. O bot entende variações de comandos e extrai automaticamente nomes de cards e listas._
+
+- `@PMO bot criar card Implementar nova funcionalidade`
+- `@PMO bot listar cards`
+- `@PMO bot mostrar cards`
+- `@PMO bot listar listas`
+- `@PMO bot mover card Login para Concluído`
+- `@PMO bot deletar card Tarefa antiga`
+
+<p align="center">
+  <img src="./assets/2025-10-26 02-05-48.gif" alt="Trello Integration Demo" width="80%">
+</p>
+
+### 🐙 GitHub Integration
+_Acompanhe o desenvolvimento do projeto com análises visuais instantâneas. O bot processa commits, identifica contribuidores e calcula médias diretamente no chat. Perfeito para stand-ups e retrospectivas._
+
+- `@PMO bot me diga os últimos 5 commits`
+- `@PMO bot mostrar últimos 10 commits`
+
+### 📊 Estatísticas
+_Gere gráficos profissionais (barras, linhas, pizza) com análises de produtividade e tendências em segundos._
+
+- `@PMO bot estatística de commits` _(ranking de contribuidores + evolução temporal)_
+- `@PMO bot estatística do trello` _(distribuição de cards por lista)_
+- `@PMO bot resumo de atividades` _(análise dos últimos 7 dias)_
 

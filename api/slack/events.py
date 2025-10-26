@@ -112,6 +112,10 @@ class handler(BaseHTTPRequestHandler):
         user = event.get('user', '')
         channel = event.get('channel', '')
         
+        # Remover menção do bot do texto
+        if '>' in text:
+            text = text.split('>', 1)[-1].strip()
+        
         # Importar classificador de intent
         import sys
         import os
