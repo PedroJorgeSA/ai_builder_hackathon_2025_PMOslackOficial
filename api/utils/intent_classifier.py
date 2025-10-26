@@ -156,6 +156,35 @@ def classify_intent(text):
                 'confidence': 0.8
             }
     
+    # Intent: Estatísticas
+    if any(word in text_lower for word in ['estatística', 'estatistica', 'estatísticas', 'estatisticas', 'análise', 'analise', 'métricas', 'metricas']):
+        # Determinar tipo de estatística
+        if any(word in text_lower for word in ['commit', 'commits', 'github']):
+            return {
+                'intent': 'stats_commits',
+                'params': {},
+                'confidence': 0.95
+            }
+        elif any(word in text_lower for word in ['card', 'cards', 'trello', 'quadro']):
+            return {
+                'intent': 'stats_trello',
+                'params': {},
+                'confidence': 0.95
+            }
+        elif any(word in text_lower for word in ['atividade', 'resumo', 'geral']):
+            return {
+                'intent': 'stats_activity',
+                'params': {},
+                'confidence': 0.9
+            }
+        else:
+            # Estatísticas gerais
+            return {
+                'intent': 'stats_general',
+                'params': {},
+                'confidence': 0.8
+            }
+    
     # Intent: Ajuda
     if any(word in text_lower for word in ['ajuda', 'help', 'ajudar', 'comandos', 'o que você faz']):
         return {
@@ -197,15 +226,15 @@ def classify_with_openai(text):
         # Preparar prompt para o GPT
         system_prompt = """Você é um classificador de intenções para um bot PMO.
 Analise o texto do usuário e retorne um JSON com:
-- intent: uma das opções (github_commits, trello_create_card, trello_list_cards, trello_move_card, trello_delete_card, trello_list_lists, trello_update_card, trello_update_status, help, greeting, unknown)
+- intent: uma das opções (github_commits, trello_create_card, trello_list_cards, trello_move_card, trello_delete_card, trello_list_lists, trello_update_card, trello_update_status, stats_commits, stats_trello, stats_activity, stats_general, help, greeting, unknown)
 - params: parâmetros extraídos do texto
 - confidence: confiança de 0 a 1
 
 Exemplos:
 "me diga os últimos 5 commits" -> {"intent": "github_commits", "params": {"limit": 5}, "confidence": 0.95}
 "criar card Nova Feature" -> {"intent": "trello_create_card", "params": {"card_name": "Nova Feature"}, "confidence": 0.9}
-"deletar card Bug Antigo" -> {"intent": "trello_delete_card", "params": {"card_name": "Bug Antigo"}, "confidence": 0.9}
-"mover card X para Em Progresso" -> {"intent": "trello_move_card", "params": {"card_name": "X", "target_list": "Em Progresso"}, "confidence": 0.9}
+"estatística de commits" -> {"intent": "stats_commits", "params": {}, "confidence": 0.95}
+"análise do trello" -> {"intent": "stats_trello", "params": {}, "confidence": 0.95}
 """
 
         payload = {

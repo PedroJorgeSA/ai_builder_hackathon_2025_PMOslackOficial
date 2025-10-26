@@ -10,6 +10,9 @@ import hmac
 import hashlib
 import time
 
+# Cache global de eventos processados (evitar duplicatas)
+processed_events = set()
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
@@ -35,25 +38,49 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'challenge': data['challenge']}).encode())
                 return
             
-            # Processar evento
-            if data.get('type') == 'event_callback':
-                event = data.get('event', {})
-                
-                # Processar mensagem
-                if event.get('type') == 'app_mention':
-                    response = self.process_mention(event)
-                    self.send_slack_response(response)
-            
-            # Responder OK
+            # IMPORTANTE: Responder OK IMEDIATAMENTE ao Slack (antes de processar)
+            # Isso evita que o Slack faça retry por timeout
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(b'{"ok": true}')
             
+            # Processar evento DEPOIS de responder
+            if data.get('type') == 'event_callback':
+                event = data.get('event', {})
+                
+                # Verificar se já processamos este evento (evitar duplicatas)
+                event_id = data.get('event_id')
+                event_ts = event.get('event_ts', event.get('ts'))
+                
+                # Criar chave única para o evento
+                event_key = f"{event_id}_{event_ts}"
+                
+                if event_key in processed_events:
+                    print(f"[DEDUP] Evento duplicado ignorado: {event_key}")
+                    return
+                
+                # Marcar como processado
+                processed_events.add(event_key)
+                
+                # Limpar cache antigo (manter apenas últimos 100 eventos)
+                if len(processed_events) > 100:
+                    processed_events.pop()
+                
+                # Processar mensagem
+                if event.get('type') == 'app_mention':
+                    # Ignorar mensagens do próprio bot
+                    if event.get('bot_id'):
+                        print(f"[DEDUP] Mensagem do próprio bot ignorada")
+                        return
+                    
+                    response = self.process_mention(event)
+                    self.send_slack_response(response)
+            
         except Exception as e:
-            self.send_response(500)
-            self.end_headers()
-            self.wfile.write(str(e).encode())
+            print(f"[ERROR] Erro ao processar evento: {e}")
+            import traceback
+            traceback.print_exc()
     
     def verify_slack_signature(self, body):
         """Verifica assinatura do Slack"""
@@ -158,6 +185,18 @@ class handler(BaseHTTPRequestHandler):
                     'channel': channel,
                     'text': f'<@{user}> 🔄 Atualizando status do card "{card_name}" para "{status}"...\n_Funcionalidade em desenvolvimento_'
                 }
+            
+            elif intent == 'stats_commits':
+                return self.handle_stats_commits(channel, user)
+            
+            elif intent == 'stats_trello':
+                return self.handle_stats_trello(channel, user)
+            
+            elif intent == 'stats_activity':
+                return self.handle_stats_activity(channel, user)
+            
+            elif intent == 'stats_general':
+                return self.handle_stats_general(channel, user)
             
             elif intent == 'help':
                 return self.show_help(channel, user)
@@ -573,6 +612,246 @@ class handler(BaseHTTPRequestHandler):
                 'text': f'<@{user}> ❌ Erro ao listar listas: {str(e)}'
             }
     
+    def handle_stats_commits(self, channel, user):
+        """Gera estatísticas de commits do GitHub com gráficos"""
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+        
+        try:
+            from utils.statistics import (
+                get_github_commits_stats, 
+                generate_commits_report,
+                generate_commits_chart,
+                generate_commits_timeline,
+                upload_chart_to_slack
+            )
+            
+            github_token = os.environ.get('GITHUB_TOKEN')
+            github_repo = os.environ.get('GITHUB_REPO')
+            slack_token = os.environ.get('SLACK_BOT_TOKEN')
+            
+            if not github_repo:
+                return {
+                    'channel': channel,
+                    'text': f'<@{user}> ❌ GITHUB_REPO não configurado.'
+                }
+            
+            # Buscar estatísticas
+            stats = get_github_commits_stats(github_token, github_repo, limit=100)
+            
+            if not stats:
+                return {
+                    'channel': channel,
+                    'text': f'<@{user}> ❌ Não foi possível gerar estatísticas.'
+                }
+            
+            # Gerar relatório textual
+            report = generate_commits_report(stats)
+            
+            # Enviar relatório textual primeiro
+            self.send_slack_response({
+                'channel': channel,
+                'text': f'{report}\n\n📊 _Gerando gráficos..._'
+            })
+            
+            # Gerar e enviar gráfico de barras (ranking)
+            success_count = 0
+            errors = []
+            
+            chart_buffer = generate_commits_chart(stats)
+            if chart_buffer and slack_token:
+                result = upload_chart_to_slack(
+                    chart_buffer, 
+                    f'commits_ranking_{github_repo.replace("/", "_")}.png',
+                    channel,
+                    slack_token,
+                    f'📊 Ranking de Commits - {github_repo}'
+                )
+                if result:
+                    success_count += 1
+                else:
+                    errors.append("Erro ao enviar gráfico de ranking")
+            elif not slack_token:
+                errors.append("SLACK_BOT_TOKEN não configurado")
+            
+            # Gerar e enviar gráfico de linha (evolução temporal)
+            timeline_buffer, timeline_stats = generate_commits_timeline(github_token, github_repo, days=30)
+            if timeline_buffer and slack_token:
+                comment = f'📈 Evolução de Commits (últimos 30 dias)\n'
+                comment += f'• Total: {timeline_stats["total_commits"]} commits\n'
+                comment += f'• Média/dia: {timeline_stats["avg_per_day"]}\n'
+                comment += f'• Máximo em 1 dia: {timeline_stats["max_in_day"]}'
+                
+                result = upload_chart_to_slack(
+                    timeline_buffer,
+                    f'commits_timeline_{github_repo.replace("/", "_")}.png',
+                    channel,
+                    slack_token,
+                    comment
+                )
+                if result:
+                    success_count += 1
+                else:
+                    errors.append("Erro ao enviar gráfico de evolução")
+            
+            # Mensagem final
+            if success_count == 2:
+                return {
+                    'channel': channel,
+                    'text': '✅ Gráficos enviados com sucesso!'
+                }
+            elif success_count > 0:
+                return {
+                    'channel': channel,
+                    'text': f'⚠️ {success_count} gráfico(s) enviado(s), mas houve problemas:\n• ' + '\n• '.join(errors)
+                }
+            else:
+                error_msg = '\n• '.join(errors) if errors else 'Verifique os logs (vercel logs)'
+                return {
+                    'channel': channel,
+                    'text': f'❌ Não foi possível enviar os gráficos.\n• {error_msg}\n\n*Verifique:*\n1. Bot tem permissão `files:write`?\n2. SLACK_BOT_TOKEN está configurado?'
+                }
+        
+        except Exception as e:
+            return {
+                'channel': channel,
+                'text': f'<@{user}> ❌ Erro ao gerar estatísticas: {str(e)}'
+            }
+    
+    def handle_stats_trello(self, channel, user):
+        """Gera estatísticas do Trello com gráficos"""
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+        
+        try:
+            from utils.statistics import (
+                get_trello_cards_stats, 
+                generate_trello_report,
+                generate_trello_pie_chart,
+                upload_chart_to_slack
+            )
+            
+            api_key = os.environ.get('TRELLO_API_KEY')
+            token = os.environ.get('TRELLO_TOKEN')
+            board_id = os.environ.get('TRELLO_BOARD_ID')
+            slack_token = os.environ.get('SLACK_BOT_TOKEN')
+            
+            if not all([api_key, token, board_id]):
+                return {
+                    'channel': channel,
+                    'text': f'<@{user}> ❌ Credenciais do Trello não configuradas.'
+                }
+            
+            # Buscar estatísticas
+            stats = get_trello_cards_stats(api_key, token, board_id)
+            
+            if not stats:
+                return {
+                    'channel': channel,
+                    'text': f'<@{user}> ❌ Não foi possível gerar estatísticas.'
+                }
+            
+            # Gerar relatório textual
+            report = generate_trello_report(stats)
+            
+            # Enviar relatório
+            self.send_slack_response({
+                'channel': channel,
+                'text': f'{report}\n\n📊 _Gerando gráfico..._'
+            })
+            
+            # Gerar e enviar gráfico de pizza
+            chart_buffer = generate_trello_pie_chart(stats)
+            if chart_buffer and slack_token:
+                result = upload_chart_to_slack(
+                    chart_buffer,
+                    'trello_distribution.png',
+                    channel,
+                    slack_token,
+                    f'📊 Distribuição de Cards no Trello'
+                )
+                
+                if result:
+                    return {
+                        'channel': channel,
+                        'text': '✅ Gráfico enviado com sucesso!'
+                    }
+                else:
+                    return {
+                        'channel': channel,
+                        'text': '❌ Erro ao enviar o gráfico.\n\n*Verifique:*\n1. Bot tem permissão `files:write`?\n2. SLACK_BOT_TOKEN está configurado?'
+                    }
+            elif not slack_token:
+                return {
+                    'channel': channel,
+                    'text': '❌ SLACK_BOT_TOKEN não configurado.'
+                }
+            else:
+                return {
+                    'channel': channel,
+                    'text': '❌ Erro ao gerar o gráfico.'
+                }
+        
+        except Exception as e:
+            return {
+                'channel': channel,
+                'text': f'<@{user}> ❌ Erro ao gerar estatísticas: {str(e)}'
+            }
+    
+    def handle_stats_activity(self, channel, user):
+        """Gera resumo de atividades"""
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+        
+        try:
+            from utils.statistics import get_activity_summary, generate_activity_report
+            
+            github_token = os.environ.get('GITHUB_TOKEN')
+            github_repo = os.environ.get('GITHUB_REPO')
+            trello_key = os.environ.get('TRELLO_API_KEY')
+            trello_token = os.environ.get('TRELLO_TOKEN')
+            board_id = os.environ.get('TRELLO_BOARD_ID')
+            
+            # Buscar resumo
+            summary = get_activity_summary(github_token, github_repo, trello_key, trello_token, board_id)
+            
+            if not summary:
+                return {
+                    'channel': channel,
+                    'text': f'<@{user}> ❌ Não foi possível gerar resumo.'
+                }
+            
+            # Gerar relatório
+            report = generate_activity_report(summary)
+            
+            return {
+                'channel': channel,
+                'text': report
+            }
+        
+        except Exception as e:
+            return {
+                'channel': channel,
+                'text': f'<@{user}> ❌ Erro ao gerar resumo: {str(e)}'
+            }
+    
+    def handle_stats_general(self, channel, user):
+        """Mostra menu de estatísticas disponíveis"""
+        help_text = f'''<@{user}> 📊 *Estatísticas Disponíveis:*
+
+Digite um dos comandos abaixo:
+
+• `estatística de commits` - Análise de commits por pessoa
+• `estatística do trello` - Distribuição de cards por lista
+• `resumo de atividades` - Atividades dos últimos 7 dias
+
+_Escolha uma opção acima!_'''
+        
+        return {
+            'channel': channel,
+            'text': help_text
+        }
+    
     def show_help(self, channel, user):
         """Mostra ajuda com comandos disponíveis"""
         help_text = f'''<@{user}> 🤖 *Comandos Disponíveis:*
@@ -588,6 +867,11 @@ class handler(BaseHTTPRequestHandler):
 • `listar listas` - Lista todas as listas/colunas
 • `mover card X para Lista Y` - Move card entre listas
 • `deletar card Nome do Card` - Deleta um card
+
+*Estatísticas:*
+• `estatística de commits` - Análise de commits por pessoa
+• `estatística do trello` - Distribuição de cards
+• `resumo de atividades` - Resumo dos últimos 7 dias
 
 *Ajuda:*
 • `ajuda` ou `help` - Mostra esta mensagem
