@@ -8,16 +8,22 @@
   },
   "scripts": {
     "start": "node mcp-custom-server.js",
-    "dev": "node mcp-custom-server.js"
+    "dev": "node mcp-custom-server.js",
+    "vercel-build": "echo 'Build complete'"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "engines": {
+    "node": ">=18.x"
   },
   "keywords": [
     "mcp",
     "trello",
     "slack",
-    "integration"
+    "integration",
+    "vercel",
+    "serverless"
   ],
   "author": "Custom MCP Server",
   "license": "MIT"

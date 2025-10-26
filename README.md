@@ -98,6 +98,26 @@ Após configurar o `mcp.json`, reinicie o Cursor e use as ferramentas através d
 3. Instale o app no workspace
 4. Copie o Bot Token
 
+## 🚀 Deploy Simples na Vercel
+
+Coloque sua aplicação online em **2 minutos**:
+
+```bash
+# 1. Instalar CLI
+npm install -g vercel
+
+# 2. Deploy
+vercel
+
+# 3. Configurar variáveis no dashboard da Vercel
+```
+
+📖 **Guias de Deploy:**
+- ⚡ [VERCEL_QUICK_START.md](./VERCEL_QUICK_START.md) - Deploy em 2 minutos
+- 📚 [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md) - Guia completo
+
+**URL após deploy:** `https://seu-projeto.vercel.app`
+
 ## 📊 Status
 
 - ✅ Estrutura do MCP criada
@@ -106,6 +126,7 @@ Após configurar o `mcp.json`, reinicie o Cursor e use as ferramentas através d
 - ✅ Integração configurada
 - ✅ Dependências instaladas
 - ✅ Configuração atualizada
+- ✅ Deploy na Vercel pronto
 
 ## 🎉 Pronto para usar!
 

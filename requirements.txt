@@ -1,0 +1,11 @@
+# Requirements para Python (usado pela Vercel)
+# Para serverless functions Python na Vercel
+
+# Não precisa de muitas dependências pois a função é simples
+# Se precisar de mais libs, adicione aqui
+
+# Para verificação de assinatura do Slack (já built-in)
+# hmac
+# hashlib
+# time
+

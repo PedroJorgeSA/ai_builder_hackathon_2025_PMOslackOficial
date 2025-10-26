@@ -53,3 +53,4 @@ mcp.json
 *.tmp
 *.bak
 
+.vercel

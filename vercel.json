@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "name": "mcp-custom-server",
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/slack/events",
+      "dest": "/api/slack/events.py"
+    },
+    {
+      "src": "/api/trello/(.*)",
+      "dest": "/api/trello/$1.js"
+    },
+    {
+      "src": "/api/slack/(.*)",
+      "dest": "/api/slack/$1.js"
+    },
+    {
+      "src": "/api/github/(.*)",
+      "dest": "/api/github/$1.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    }
+  ],
+  "env": {
+  },
+  "regions": ["iad1"]
+}
+

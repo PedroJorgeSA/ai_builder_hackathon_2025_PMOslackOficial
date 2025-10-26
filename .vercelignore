@@ -1,0 +1,55 @@
+# Files to ignore when deploying to Vercel
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MCP specific (não precisa na Vercel)
+mcp.json
+mcp-custom-server.js
+langgraph_agent.py
+intent_classifier_agent.py
+
+# Documentation (opcional - pode incluir se quiser)
+*.md
+!README.md
+!VERCEL_DEPLOY.md
+!VERCEL_QUICK_START.md
+
+# Build artifacts
+dist/
+build/
+
