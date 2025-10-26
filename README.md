@@ -57,7 +57,7 @@ _Acompanhe o desenvolvimento do projeto com análises visuais instantâneas. O b
 - `@PMO bot mostrar últimos 10 commits`
 
 <p align="center">
-  <img src="./assets/git.gif" alt="GitHub Integration Demo" width="80%">
+  <img src="./assets/git.mp4" alt="GitHub Integration Demo" width="80%">
 </p>
 
 ### 📊 Estatísticas
