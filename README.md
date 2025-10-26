@@ -20,6 +20,10 @@ ___
 - **[GitHub](https://github.com/PedroJorgeSA/ai_builder_hackathon_2025_PMOslack)** - Código-fonte do projeto
 - **[Trello Board](https://trello.com/b/ddJDEAXb/kanban-quadro-modelo)** - Quadro Kanban de exemplo
 
+### 🎥 Apresentação do Projeto
+- **[📊 Slides de Apresentação](https://www.figma.com/deck/Fp7r5j6uwulPvhXdMMY94H/Slide-Synco?node-id=1-401&p=f&viewport=-1803%2C46%2C0.13&t=na0TOok0UtJKzi80-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1)** - Apresentação completa no Figma
+- **[🎬 Vídeo Demo](https://youtu.be/HZYC8Y5OFPo)** - Demonstração prática do Synco em ação
+
 ---
 
 ## 🚀 O que você pode fazer no Slack
