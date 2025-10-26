@@ -24,6 +24,18 @@ ___
 
 ## 🚀 O que você pode fazer no Slack
 
+### 💬 Interface Conversacional
+_Converse naturalmente com a Synco no Slack. Mencione o bot e peça o que precisa - ele entende linguagem natural, interpreta suas intenções e executa as ações automaticamente. Simples, rápido e intuitivo._
+
+- `@PMO bot ajuda` _(mostra todos os comandos disponíveis)_
+- `@PMO bot listar cards` _(visualize seus cards do Trello)_
+- `@PMO bot estatística de commits` _(gráficos e análises instantâneas)_
+- `@PMO bot resumo de atividades` _(overview do projeto)_
+
+<p align="center">
+  <img src="./assets/slack.gif" alt="Slack Interface Demo" width="80%">
+</p>
+
 ### 📋 Trello Integration
 _Gerencie seu board do Trello sem sair do Slack. Crie, mova e organize cards usando linguagem natural, sem precisar lembrar IDs ou abrir o navegador. O bot entende variações de comandos e extrai automaticamente nomes de cards e listas._
 
@@ -35,7 +47,7 @@ _Gerencie seu board do Trello sem sair do Slack. Crie, mova e organize cards usa
 - `@PMO bot deletar card Tarefa antiga`
 
 <p align="center">
-  <img src="./assets/2025-10-26 02-05-48.gif" alt="Trello Integration Demo" width="80%">
+  <img src="./assets/trello.gif" alt="Trello Integration Demo" width="80%">
 </p>
 
 ### 🐙 GitHub Integration
@@ -44,10 +56,18 @@ _Acompanhe o desenvolvimento do projeto com análises visuais instantâneas. O b
 - `@PMO bot me diga os últimos 5 commits`
 - `@PMO bot mostrar últimos 10 commits`
 
+<p align="center">
+  <img src="./assets/git.gif" alt="GitHub Integration Demo" width="80%">
+</p>
+
 ### 📊 Estatísticas
 _Gere gráficos profissionais (barras, linhas, pizza) com análises de produtividade e tendências em segundos._
 
 - `@PMO bot estatística de commits` _(ranking de contribuidores + evolução temporal)_
 - `@PMO bot estatística do trello` _(distribuição de cards por lista)_
 - `@PMO bot resumo de atividades` _(análise dos últimos 7 dias)_
+
+<p align="center">
+  <img src="./assets/Estatistica.gif" alt="Statistics Demo" width="80%">
+</p>
 

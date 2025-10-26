@@ -97,30 +97,49 @@ def classify_intent(text):
     
     # Intent: Mover card
     if any(word in text_lower for word in ['mover', 'mudar', 'transferir']):
+        print(f"[INTENT] ===== MOVER CARD DETECTADO =====")
+        print(f"[INTENT] Texto original recebido: '{text}'")
+        print(f"[INTENT] Texto em minúsculas: '{text_lower}'")
+        
         # Estratégia simples: dividir no "para"
         # Remove o comando inicial
         text_clean = re.sub(r'(?:mover|mudar|transferir)\s+', '', text_lower, count=1)
+        print(f"[INTENT] Após remover comando: '{text_clean}'")
         
         # Remove "card" ou "o card" do início
         text_clean = re.sub(r'^(?:o\s+)?(?:card\s+|tarefa\s+)', '', text_clean)
+        print(f"[INTENT] Após remover 'card': '{text_clean}'")
+        
+        # Remover aspas
+        text_clean = text_clean.replace('"', '').replace("'", '')
+        print(f"[INTENT] Após remover aspas: '{text_clean}'")
         
         # Encontrar "para" ou "pra"
+        card_name = None
+        target_list = None
+        
         if ' para ' in text_clean:
             parts = text_clean.split(' para ', 1)
+            print(f"[INTENT] Split no ' para ': {parts}")
         elif ' pra ' in text_clean:
             parts = text_clean.split(' pra ', 1)
+            print(f"[INTENT] Split no ' pra ': {parts}")
         else:
+            print(f"[INTENT] NÃO ENCONTROU 'para' ou 'pra' no texto!")
             parts = [None, None]
         
-        if len(parts) == 2:
+        if len(parts) == 2 and parts[0] and parts[1]:
             card_name = parts[0].strip()
             target_list = parts[1].strip()
             
             # Remover "a lista" do início da lista
             target_list = re.sub(r'^(?:a\s+)?(?:lista\s+|coluna\s+)', '', target_list)
             
-            print(f"[INTENT] Mover detectado - Card: '{card_name}', Lista: '{target_list}'")
+            print(f"[INTENT] ===== RESULTADO FINAL =====")
+            print(f"[INTENT] Card: '{card_name}'")
+            print(f"[INTENT] Lista: '{target_list}'")
         else:
+            print(f"[INTENT] FALHOU - Parts inválidas: {parts}")
             card_name = None
             target_list = None
         

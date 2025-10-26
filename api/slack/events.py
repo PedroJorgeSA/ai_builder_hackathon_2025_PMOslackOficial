@@ -112,9 +112,13 @@ class handler(BaseHTTPRequestHandler):
         user = event.get('user', '')
         channel = event.get('channel', '')
         
+        print(f"[PROCESS] ===== NOVA MENÇÃO =====")
+        print(f"[PROCESS] Texto RAW do evento: '{text}'")
+        
         # Remover menção do bot do texto
         if '>' in text:
             text = text.split('>', 1)[-1].strip()
+            print(f"[PROCESS] Texto após remover menção: '{text}'")
         
         # Importar classificador de intent
         import sys
